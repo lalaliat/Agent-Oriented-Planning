@@ -60,11 +60,11 @@ res['data']['response']['choices'][0]['message']['content'].strip()
 
 # region run the code
 text = res['data']['response']['choices'][0]['message']['content'].strip()
-start_index = text.find("```python") + len("```python")  # 找到第一个三引号，并且加3以排除三引号本身
-end_index = text.rfind("```")  # 找到最后一个三引号
-# 提取内容
+start_index = text.find("```python") + len("```python") 
+end_index = text.rfind("```")  
+
 extracted_content = text[start_index:end_index].strip()
-# 打印结果以确认
+
 print(extracted_content)
 
 result = subprocess.run([sys.executable, "-c", extracted_content], capture_output=True, text=True, timeout=10)
@@ -119,9 +119,8 @@ print(response)
 # pattern = r"The score is \*\*\*([\d\.]+)\*\*\*"
 pattern = r"\*\*\*([\d\.]+)\*\*\*"
 
-# 搜索匹配项
 match = re.search(pattern, response)
-# 提取并打印数字
+
 if match:
     score = match.group(1)
 else:
@@ -140,7 +139,6 @@ def is_valid_json(variable):
         return False
     return True
 
-# 开始和结束标记
 start_marker = '***'
 end_marker = '*]'
 
@@ -150,13 +148,12 @@ extracted_contents = extract_content_between_markers(file_path, start_marker, en
 len(extracted_contents)
 print(extracted_contents[0])
 
-# 收集每个subtask的response并打分。
 for id in range(len(extracted_contents)):
     split_text = extracted_contents[id].split("***")
     question = split_text[0].strip()
     if is_valid_json('['+split_text[1].split('[*')[1]+']'):
         tasks = json.loads('['+split_text[1].split('[*')[1]+']')
-        subtasks_response = [] # 收集单个query对应的多个sub-tasks的responses
+        subtasks_response = [] 
         for i in range(len(tasks)):
             if i == 0 or tasks[i]['dep']==[]:
                 history = None 
@@ -333,8 +330,6 @@ names = ['code_agent', 'math_agent', 'search_agent', 'commonsense_agent']
 with open('/mnt/liao/planner/documents/responses.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
-
-# 使用正则表达式提取 [ {}, {} ] 形式的内容
 pattern = re.compile(r'\*\*\*(.*?)\*\*\*')
 matches = pattern.findall(content)
 for i in range(246, len(matches)):
