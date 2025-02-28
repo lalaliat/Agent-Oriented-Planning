@@ -196,18 +196,14 @@ def plan_execution(query, plan, ollama = False, dep = 'all'):
                         res = agent(prompt)
                         if isinstance(res.get('data'), dict):
                             answer1 = re.compile(r'\*\*\*(.*?)\*\*\*').findall(res['data']['response']['choices'][0]['message']['content'])
-                            # 首先第一个问题必须有回复
                             if answer1 != []:
                                 if answer1[0] == 'Yes':
                                     history_provide = history_ask
                                     break
                                 elif answer1[0] == 'No':
-                                    # 如果第一个问题回答No，那么第二个问题必须有回复
                                     answer2 = re.compile(r'\~\~\~(.*?)\~\~\~').findall(res['data']['response']['choices'][0]['message']['content'])
                                     answer3 = re.compile(r'\$\$\$(.*?)\$\$\$').findall(res['data']['response']['choices'][0]['message']['content'])
                                     if answer3 !=[] and answer2 != []:
-                                        # task_add 要么是None，要么是需要补充的子任务
-                                        # dep_add 要么是None，要么是需要补充的依赖，为list
                                         dep_add = answer2[0]
                                         task_add = answer3[0]
                                         if task_add == 'None':
@@ -219,7 +215,6 @@ def plan_execution(query, plan, ollama = False, dep = 'all'):
                                         if dep_add != None:
                                             history_provide += '\n'.join([history[i-1] for i in dep_add])
                                         if task_add != None:
-                                            # 其实应该replan重新调用agent，但是实在是绷不住了
                                             for _ in range(10):
                                                 res = agent(task_add)
                                                 if isinstance(res.get('data'), dict):
