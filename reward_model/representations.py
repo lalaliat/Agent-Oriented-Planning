@@ -17,7 +17,7 @@ tokenizer = AutoTokenizer.from_pretrained('/mnt/liao/planner/models/strans')
 model = AutoModel.from_pretrained('/mnt/liao/planner/models/strans')
 
 def agent_rep(rep, threshold = 0.7, model = model, tokenizer = tokenizer):
-    # 给定agents的一些代表作（score为10），筛除掉相似的sentences，留下彼此之间sim都小于threshold的代表作。
+    
     rep_embd = semb(rep, model, tokenizer) 
     rep_sim = [rep[0]]
     rep_embd_sim = [rep_embd[0]]
