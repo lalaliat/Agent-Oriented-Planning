@@ -10,7 +10,7 @@ from tqdm.autonotebook import tqdm
 train_dataset = torch.load('datasets/huskyqa-subtasks/train_high.pt')
 val_dataset = torch.load('datasets/huskyqa-subtasks/val_high.pt')
 
-# 可以选择转换为 DataLoader 以方便模型训练
+
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 
