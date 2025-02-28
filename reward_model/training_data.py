@@ -70,19 +70,15 @@ def reward_model_dataset(path = 'documents/responses_score_reason.txt', save_pat
     # get the embeddings of the subtasks and descriptions
     subtasks_embd = semb(subtasks, model, tokenizer) 
     descriptions_embd = semb(descriptions, model, tokenizer)
-
-    # 暂时先把subtasks的embeddings放在descriptions的前面，后续再看有没有影响
+                           
     x_tensor = torch.cat((subtasks_embd, descriptions_embd), 1)
     y_tensor = torch.tensor(scores).reshape(-1, 1)
-
-    # 创建 TensorDataset
+                         
     dataset = TensorDataset(x_tensor, y_tensor)
-
-    # 计算训练数据和验证数据的大小
+                           
     train_size = int(train_ratio * len(dataset))
     val_size = len(dataset) - train_size
 
-    # 使用 random_split 函数将数据集分割
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
     # save the datasets
