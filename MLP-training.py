@@ -11,15 +11,12 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-# 打开并读取txt文件
 with open('/mnt/liao/planner/documents/responses.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
-# 使用正则表达式提取 [ {}, {} ] 形式的内容
 pattern = re.compile(r'\*\*\*(.*?)\*\*\*')
 matches = pattern.findall(content)
 
-# 打印提取的内容
 for match in matches:
     print(match)
     break
@@ -43,8 +40,6 @@ for match in matches:
 plt.hist(scores)
 plt.show()
 
-
-# 创建模型实例
 MLP = SimilarityMLP()
 
 from transformers import AutoTokenizer, AutoModel
@@ -55,10 +50,6 @@ import torch.nn.functional as F
 tokenizer = AutoTokenizer.from_pretrained('/mnt/liao/planner/models/strans')
 model = AutoModel.from_pretrained('/mnt/liao/planner/models/strans')
 
-# sentence_embeddings = semb(sentences, model, tokenizer)
-
-# prepare the training dataset.
-
 agents_descriptions = {'code_agent': 'Generates code in Python for precise computations to solve the given task.',
           'math_agent': 'Answer math questions by reasoning step-by-step.',
           'search_agent': 'Write a concise, informative Bing Search query for obtaining information regarding the given task.',
@@ -67,7 +58,6 @@ agents_descriptions = {'code_agent': 'Generates code in Python for precise compu
 with open('/mnt/liao/planner/responses.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
-# 使用正则表达式提取 [ {}, {} ] 形式的内容
 pattern = re.compile(r'\*\*\*(.*?)\*\*\*')
 matches = pattern.findall(content)
 
@@ -86,40 +76,29 @@ for match in matches:
 
 subtasks_embd = semb(subtasks, model, tokenizer) 
 descriptions_embd = semb(descriptions, model, tokenizer)
-# 暂时先把subtasks的embeddings放在descriptions的前面，后续再看有没有影响
+
 x_tensor = torch.cat((subtasks_embd, descriptions_embd), 1)
 y_tensor = torch.tensor(scores).reshape(-1, 1)
 
-# 创建 TensorDataset
 dataset = TensorDataset(x_tensor, y_tensor)
 
-# 设定你想要的训练数据和验证数据的比例
 train_ratio = 0.9
 
-# 计算训练数据和验证数据的大小
 train_size = int(train_ratio * len(dataset))
 val_size = len(dataset) - train_size
 
-# 使用 random_split 函数将数据集分割
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-
-# save the datasets
-# torch.save(train_dataset, '/mnt/liao/planner/datasets/huskyqa-subtasks/train.pt')
-# torch.save(val_dataset, '/mnt/liao/planner/datasets/huskyqa-subtasks/val.pt')
 
 train_dataset = torch.load('/mnt/liao/planner/datasets/huskyqa-subtasks/train_original.pt')
 val_dataset = torch.load('/mnt/liao/planner/datasets/huskyqa-subtasks/val_original.pt')
 
-# 可以选择转换为 DataLoader 以方便模型训练
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 
-# training
 MLP = SimilarityMLP()
 criterion = nn.MSELoss()
 optimizer = optim.Adam(MLP.parameters(), lr=0.0001)
-# a = copy.deepcopy(MLP.state_dict())
-# 训练循环
+
 num_epochs = 10
 losses = []
 for epoch in range(num_epochs):
@@ -202,14 +181,9 @@ commonsense_agent_descriptions =  [
     "Address the question with commonsense reasoning.",
     "Employ commonsense reasoning to answer the question given.",
 ]
-
-
-# region 给每个task分配10个descriptions试一下
-
 with open('/mnt/liao/planner/documents/responses.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
-# 使用正则表达式提取 [ {}, {} ] 形式的内容
 pattern = re.compile(r'\*\*\*(.*?)\*\*\*')
 matches = pattern.findall(content)
 
@@ -240,21 +214,17 @@ for match in matches:
 
 subtasks_embd = semb(subtasks, model, tokenizer) 
 descriptions_embd = semb(descriptions, model, tokenizer)
-# 暂时先把subtasks的embeddings放在descriptions的前面，后续再看有没有影响
+
 x_tensor = torch.cat((subtasks_embd, descriptions_embd), 1)
 y_tensor = torch.tensor(scores).reshape(-1, 1)
 
-# 创建 TensorDataset
 dataset = TensorDataset(x_tensor, y_tensor)
 
-# 设定你想要的训练数据和验证数据的比例
 train_ratio = 0.9
 
-# 计算训练数据和验证数据的大小
 train_size = int(train_ratio * len(dataset))
 val_size = len(dataset) - train_size
 
-# 使用 random_split 函数将数据集分割
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
 
@@ -274,7 +244,7 @@ num_epochs = 100
 num_training_steps = num_epochs * len(train_loader)
 progress_bar = tqdm(range(num_training_steps))
 # a = copy.deepcopy(MLP.state_dict())
-# 训练循环
+
 
 loss_train = []
 loss_eval = []
