@@ -79,16 +79,6 @@ matches_plan = pattern_plan.findall(content)
 pattern_query = re.compile(r'\*\*\*(.*?)\*\*\*')
 matches_query = pattern_query.findall(content)
 
-# num = 0
-# query = matches_query[num]
-# plan =json.loads(matches_plan[num])
-# query, subtasks_response, final_answer = plan_execution(query, plan)
-
-# with open('/mnt/liao/planner/documents/new_plan_response.txt', 'a', encoding='utf-8') as file:
-#     file.write('***' + query + '***\n')
-#     json.dump(subtasks_response, file)
-#     file.write('\n~~~' + str(num) + ': ' + final_answer + '~~~\n\n')
-
 for i in range(247, len(matches_query)):
     query = matches_query[i]
     plan = json.loads(matches_plan[i])
@@ -141,7 +131,6 @@ for num in range(len(raw_datasets['test']['question'])):
         file.write('~~~' + str(num) + ': ' + gpt4o_answer + '~~~\n\n')
 
 
-# region 进行subtasks分割的补全。这一段完成目标之后可以删掉。
 data_path = '/mnt/liao/planner/datasets/huskyqa'
 raw_datasets = datasets.load_dataset(data_path)
 
@@ -154,7 +143,6 @@ def is_valid_json(variable):
         return False
     return True
 
-# 开始和结束标记
 start_marker = '***'
 end_marker = '*]'
 agent_num_each_subtask = 2
@@ -244,7 +232,6 @@ planner = planner_gpt()
 total_time = 0
 total_prompt_token = 0
 total_completion_token = 0
-# training dataset 中的任务拆解存储
 for i in random_numbers:
     plan = None
     start_time = time.time() 
@@ -274,8 +261,6 @@ for i in random_numbers:
     end_time = time.time()
     total_time += end_time - start_time
     print(i,': ', total_time, total_prompt_token, total_completion_token)
-
-# 执行子任务并获得子任务的得分
 
 with open('/mnt/liao/planner/datasets/huskyqa/final_question_plan.txt', 'r', encoding='utf-8') as file:
     content = file.read()
@@ -496,19 +481,15 @@ for i in range(len(df)):
 subtasks_embd = semb(subtasks, model, tokenizer) 
 descriptions_embd = semb(descriptions, model, tokenizer)
 
-# 暂时先把subtasks的embeddings放在descriptions的前面，后续再看有没有影响
 x_tensor = torch.cat((subtasks_embd, descriptions_embd), 1)
 y_tensor = torch.tensor(scores).reshape(-1, 1)
 
 train_ratio = 0.9
-# 创建 TensorDataset
 dataset = TensorDataset(x_tensor, y_tensor)
 
-# 计算训练数据和验证数据的大小
 train_size = int(train_ratio * len(dataset))
 val_size = len(dataset) - train_size
 
-# 使用 random_split 函数将数据集分割
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
 torch.save(train_dataset, '/mnt/liao/planner/datasets/huskyqa_train/train_0_5.pt')
@@ -517,7 +498,6 @@ torch.save(val_dataset, '/mnt/liao/planner/datasets/huskyqa_train/val_0_5.pt')
 train_dataset = torch.load('/mnt/liao/planner/datasets/huskyqa/train_criteria.pt')
 val_dataset = torch.load('/mnt/liao/planner/datasets/huskyqa/val_criteria.pt')
 
-# 可以选择转换为 DataLoader 以方便模型训练
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 
